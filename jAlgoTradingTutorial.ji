@@ -1,0 +1,38 @@
+name = "James"
+num_fingers = 10
+num_toes = 10
+
+println("my name is $name")
+println("I have $num_fingers fingers and $num_toes toes")
+println(name)
+println(typeof(name))
+
+
+sum = 3 + 7
+println(sum)
+
+difference = 10 - 3
+println(difference)
+
+product = 10*3
+println(product)
+
+quotient = 100/10
+println(quotient)
+
+power = 2^8
+println(power)
+
+modulus = 101 % 2
+println(modulus)
+
+import Pkg
+# Pkg.add("CSV")
+# using CSV
+# dataset = CSV.read("data/GBPUSD1d.txt")
+# println(dataset)
+
+Pkg.add("PyPlot")
+using PyPlot
+x = range(0,stop=2*pi,length=1000); y = sin.(3*x + 4*cos.(2*x))
+plot(x, y, color="red", linewidth=2.0, linestyle="--")
