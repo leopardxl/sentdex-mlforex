@@ -27,8 +27,11 @@ modulus = 101 % 2
 println(modulus)
 
 import Pkg
-# Pkg.add("CSV")
-# using CSV
+Pkg.add("CSV")
+using CSV
+Pkg.add("PyPlot")
+using PyPlot
+
 # dataset = CSV.read("data/GBPUSD1d.txt")
 # println(dataset)
 
