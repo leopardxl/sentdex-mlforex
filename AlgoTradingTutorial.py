@@ -84,6 +84,20 @@ def currentPattern():
 def sum(arr):
     return reduce(lambda x, y: x+y, arr)
 
+def printFoundPattern(pattern):
+    patdex = patternAr.index(pattern)
+    print("#########################")
+    print("#########################")
+    print(patForRec)
+    print("#########################")
+    print("#########################")
+    print(pattern)
+    print("#########################")
+    print("#########################")
+    print("predicted outcome:, ", performanceAr[patdex])
+    print("#########################")
+    print("#########################")
+
 def patternRecognition():
     #print("Pattern for recognition:", patForRec)
     global similarAr, listSimilarIndex
@@ -98,29 +112,18 @@ def patternRecognition():
         howSimilar = (sum(points)/len(points))
 
         if howSimilar > 75:
-
+            #printFoundPattern(pattern)
             patFound = True
-            '''
-            patdex = patternAr.index(pattern)
-            print("#########################")
-            print("#########################")
-            print(patForRec)
-            print("#########################")
-            print("#########################")
-            print(pattern)
-            print("#########################")
-            print("#########################")
-            print("predicted outcome:, ", performanceAr[patdex])
-            print("#########################")
-            print("#########################")'''
             plotPatAr.append(pattern)
-
             count += 1
+
     if patFound:
         plotPatterns(plotPatAr)
 
         # if len(similarIndex) > 0:
         #     listSimilarIndex.append(similarIndex)
+
+
 
 def graphRawFX():
     fig = plt.figure(figsize=(10,7))
@@ -157,11 +160,19 @@ def plotSimilarPatterns():
         plotPatterns(indexes)
 
 def plotPatterns(patterns):
-    global patForRec
+    global patForRec, patternAr, performanceAr
     xaxis = range(1,patternSize+1)
     fig   = plt.figure(figsize=(10, 6))
     for pattern in patterns:
+        futurePoints = patternAr.index(pattern)
+
+        if performanceAr[futurePoints] > patForRec[-1]:
+            pcolor = '#24bc00'
+        else:
+            pcolor = '#d40000'
+
         plt.plot(xaxis, pattern)
+        plt.scatter(patternSize + 5, performanceAr[futurePoints], c=pcolor, alpha=.3)
 
     plt.plot(xaxis, patForRec, '#54fff7', linewidth = 3)
     plt.grid(True)
