@@ -87,7 +87,8 @@ def sum(arr):
 def patternRecognition():
     #print("Pattern for recognition:", patForRec)
     global similarAr, listSimilarIndex
-
+    patFound = False
+    plotPatAr = []
     count = 0
     for pattern in patternAr:
         points = []
@@ -96,7 +97,10 @@ def patternRecognition():
             points.append(similarity)
         howSimilar = (sum(points)/len(points))
 
-        if howSimilar > 40:
+        if howSimilar > 75:
+
+            patFound = True
+            '''
             patdex = patternAr.index(pattern)
             print("#########################")
             print("#########################")
@@ -108,12 +112,15 @@ def patternRecognition():
             print("#########################")
             print("predicted outcome:, ", performanceAr[patdex])
             print("#########################")
-            print("#########################")
-            similarIndex.append(patdex)
+            print("#########################")'''
+            plotPatAr.append(pattern)
 
             count += 1
-        if len(similarIndex) > 0:
-            listSimilarIndex.append(similarIndex)
+    if patFound:
+        plotPatterns(plotPatAr)
+
+        # if len(similarIndex) > 0:
+        #     listSimilarIndex.append(similarIndex)
 
 def graphRawFX():
     fig = plt.figure(figsize=(10,7))
@@ -137,7 +144,7 @@ def graphRawFX():
     plt.grid(True)
     plt.show()
 
-def plotPatterns(indexes):
+def plotPatternArray(indexes):
     for i in indexes:
         xaxis = range(1,patternSize+1)
         fig   = plt.figure()
@@ -149,12 +156,24 @@ def plotSimilarPatterns():
     for indexes in listSimilarIndex:
         plotPatterns(indexes)
 
+def plotPatterns(patterns):
+    global patForRec
+    xaxis = range(1,patternSize+1)
+    fig   = plt.figure(figsize=(10, 6))
+    for pattern in patterns:
+        plt.plot(xaxis, pattern)
+
+    plt.plot(xaxis, patForRec, '#54fff7', linewidth = 3)
+    plt.grid(True)
+    plt.title('Pattern Recognition')
+    plt.show()
+
 if __name__ == '__main__':
     #graphRawFX()
 
     dataLength = int(bid.shape[0])
     print("data length is:", dataLength)
-    toWhat = 100
+    toWhat = 37000
 
     while toWhat < dataLength:
         avgLine = ((bid + ask)/2.0)[:toWhat]
@@ -167,6 +186,7 @@ if __name__ == '__main__':
         patternRecognition()
 
         elapsedTime = time.time() - timeStart
-        print("Entire processing time took: ", elapsedTime, " seconds\n")
+
         toWhat += 1
-    plotSimilarPatterns()
+    print("Entire processing time took: ", elapsedTime, " seconds\n")
+    #plotSimilarPatterns()
