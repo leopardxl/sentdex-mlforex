@@ -21,7 +21,18 @@ timeStart = time.time()
 date, bid, ask = np.loadtxt('data/GBPUSD1d.txt', unpack=True, delimiter=',', converters={0:bytespdate2num('%Y%m%d%H%M%S')})
 
 patternSize = 30
-listSimilarIndex = []
+patternAr    = []
+performanceAr = []
+patForRec = []
+toWhat = 37000
+allData = ((bid+ask)/2)
+avgLine = allData[:toWhat]
+accuracyAr = []
+samps      = 0
+
+
+
+
 def percentChange(startPoint, currentPoint):
     try:
         x = ((float(currentPoint)-startPoint)/abs(startPoint))*100.00
@@ -75,14 +86,15 @@ def currentPattern():
     points = []
     for i in range(0, patternSize):
         points.append(percentChange(avgLine[-1-patternSize], avgLine[i-patternSize]))
-
-
     patForRec = points
-
-    #print("currentPattern:patForRec:", patForRec)
 
 def sum(arr):
     return reduce(lambda x, y: x+y, arr)
+
+def average(arr):
+    if len(arr) == 0:
+        return 0
+    return (sum(arr)/len(arr))
 
 def printFoundPattern(pattern):
     patdex = patternAr.index(pattern)
@@ -100,7 +112,8 @@ def printFoundPattern(pattern):
 
 def patternRecognition():
     #print("Pattern for recognition:", patForRec)
-    global similarAr, listSimilarIndex
+    global similarAr
+
     patFound = False
     plotPatAr = []
     count = 0
@@ -119,9 +132,6 @@ def patternRecognition():
 
     if patFound:
         plotPatterns(plotPatAr)
-
-        # if len(similarIndex) > 0:
-        #     listSimilarIndex.append(similarIndex)
 
 
 
@@ -147,57 +157,86 @@ def graphRawFX():
     plt.grid(True)
     plt.show()
 
-def plotPatternArray(indexes):
-    for i in indexes:
-        xaxis = range(1,patternSize+1)
-        fig   = plt.figure()
-        plt.plot(xaxis, patForRec)
-        plt.plot(xaxis, patternAr[i])
-        plt.show()
-
-def plotSimilarPatterns():
-    for indexes in listSimilarIndex:
-        plotPatterns(indexes)
 
 def plotPatterns(patterns):
-    global patForRec, patternAr, performanceAr
+    global patForRec, patternAr, performanceAr, toWhat, allData
+    predAr = []
+    predictedOutcomesAr = []
     xaxis = range(1,patternSize+1)
-    fig   = plt.figure(figsize=(10, 6))
+    #fig   = plt.figure(figsize=(10, 6))
     for pattern in patterns:
         futurePoints = patternAr.index(pattern)
 
         if performanceAr[futurePoints] > patForRec[-1]:
             pcolor = '#24bc00'
+            predAr.append(1.000)
         else:
             pcolor = '#d40000'
+            predAr.append(-1.000)
 
-        plt.plot(xaxis, pattern)
-        plt.scatter(patternSize + 5, performanceAr[futurePoints], c=pcolor, alpha=.3)
+        predictedOutcomesAr.append(performanceAr[futurePoints])
+        #plt.plot(xaxis, pattern)
+        #plt.scatter(patternSize + 5, performanceAr[futurePoints], c=pcolor, alpha=.3)
 
-    plt.plot(xaxis, patForRec, '#54fff7', linewidth = 3)
-    plt.grid(True)
-    plt.title('Pattern Recognition')
-    plt.show()
 
-if __name__ == '__main__':
-    #graphRawFX()
+    realAvgOutcomeRange = allData[toWhat+20:toWhat+30]
+    realAvgOutcome = sum(realAvgOutcomeRange)/len(realAvgOutcomeRange)
+    realMovement = percentChange(allData[toWhat], realAvgOutcome)
+    predictedAvgOutcome = sum(predictedOutcomesAr)/len(predictedOutcomesAr)
+    print(predAr)
+    predictionAverage = average(predAr)
+    print(predictionAverage)
+    if predictionAverage < 0:
+        print('drop predicted')
+        print(patForRec[patternSize - 1])
+        print(realMovement)
+        if realMovement < patForRec[patternSize-1]:
+            accuracyAr.append(100)
+        else:
+            accuracyAr.append(0)
+
+    if predictionAverage > 0:
+        print('rise predicted')
+        print(patForRec[patternSize - 1])
+        print(realMovement)
+        if realMovement > patForRec[patternSize-1]:
+            accuracyAr.append(100)
+        else:
+            accuracyAr.append(0)
+    #plt.scatter(patternSize + 10, realMovement, c='#54fff7', s=25)
+    # plt.scatter(patternSize + 10, predictedAvgOutcome, c='b', s=25)
+    #
+    # plt.plot(xaxis, patForRec, '#54fff7', linewidth = 3)
+    # plt.grid(True)
+    # plt.title('Pattern Recognition')
+    # plt.show()
+
+
+def run():
+    global allData, patternAr, performanceAr, patForRec, avgLine, samps, allData, toWhat, timeStart
 
     dataLength = int(bid.shape[0])
     print("data length is:", dataLength)
-    toWhat = 37000
 
     while toWhat < dataLength:
-        avgLine = ((bid + ask)/2.0)[:toWhat]
+        avgLine = allData[:toWhat]
         patternAr    = []
         performanceAr = []
         patForRec = []
-        similarIndex = []
+
         patternStorage()
         currentPattern()
         patternRecognition()
 
         elapsedTime = time.time() - timeStart
 
+        accuracyAverage = average(accuracyAr)
+        print('Backtested Accuracy is', str(accuracyAverage),"% after ", samps, " samples")
+        samps  += 1
         toWhat += 1
     print("Entire processing time took: ", elapsedTime, " seconds\n")
+if __name__ == '__main__':
+    #graphRawFX()
+    run()
+
     #plotSimilarPatterns()
